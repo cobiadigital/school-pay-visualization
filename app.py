@@ -13,10 +13,23 @@ import numpy as np
 
 # Load data
 try:
-    df = pd.read_csv('teacher_salary_data.csv')
+    df_general = pd.read_csv('teacher_salary_data.csv')
 except FileNotFoundError:
-    print("Data file not found. Please run: python generate_sample_data.py")
+    print("General data file not found. Please run: python generate_sample_data.py")
     exit(1)
+
+# Load Alabama-specific data if available
+try:
+    df_alabama = pd.read_csv('alabama_teacher_salaries.csv')
+    # Merge datasets - remove Alabama from general data if it exists, add detailed Alabama data
+    df_general = df_general[df_general['state'] != 'Alabama']
+    df = pd.concat([df_general, df_alabama], ignore_index=True)
+    has_alabama_data = True
+    print("✓ Loaded Alabama district data with real salary information")
+except FileNotFoundError:
+    df = df_general
+    has_alabama_data = False
+    print("Note: Alabama detailed data not found. Run: python generate_alabama_data.py")
 
 # Initialize the Dash app
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
@@ -73,6 +86,22 @@ app.layout = dbc.Container([
             )
         ], width=8),
     ], className="mb-4"),
+
+    # Alabama Data Info Banner (shown when Alabama data is loaded)
+    dbc.Row([
+        dbc.Col([
+            dbc.Alert([
+                html.H5("📍 Alabama District Data Available", className="alert-heading"),
+                html.P([
+                    "Real salary data for 9 Alabama districts including Baldwin County, Mobile County, ",
+                    "Saraland, Orange Beach, Gulf Shores, Birmingham, Montgomery, Hoover, and Huntsville. ",
+                    "Select 'Alabama' in the state filter to view detailed comparisons."
+                ], className="mb-2"),
+                html.Small("Data sources: Official district salary schedules, Alabama Dept of Education, Indeed, Glassdoor, Salary.com (2024-2025)",
+                          className="text-muted")
+            ], color="info", dismissable=True, id="alabama-alert", is_open=has_alabama_data)
+        ])
+    ], className="mb-3"),
 
     # Key Metrics Cards
     dbc.Row([
@@ -311,12 +340,21 @@ def update_dashboard(selected_region, selected_states):
     )
 
     # Data Table
-    display_df = filtered_df[['state', 'district', 'starting_salary', 'median_salary',
-                              'top_salary', 'years_to_top', 'budget_share_pct',
-                              'student_teacher_ratio']].copy()
+    # Include data_source column if it exists (for Alabama districts)
+    base_columns = ['state', 'district', 'starting_salary', 'median_salary',
+                   'top_salary', 'years_to_top', 'budget_share_pct',
+                   'student_teacher_ratio']
 
-    display_df.columns = ['State', 'District', 'Starting Salary', 'Median Salary',
-                         'Top Salary', 'Years to Top', 'Budget Share %', 'Student:Teacher Ratio']
+    if 'data_source' in filtered_df.columns:
+        display_columns = base_columns + ['data_source']
+        display_df = filtered_df[display_columns].copy()
+        display_df.columns = ['State', 'District', 'Starting Salary', 'Median Salary',
+                             'Top Salary', 'Years to Top', 'Budget Share %',
+                             'Student:Teacher Ratio', 'Data Source']
+    else:
+        display_df = filtered_df[base_columns].copy()
+        display_df.columns = ['State', 'District', 'Starting Salary', 'Median Salary',
+                             'Top Salary', 'Years to Top', 'Budget Share %', 'Student:Teacher Ratio']
 
     # Format currency columns
     for col in ['Starting Salary', 'Median Salary', 'Top Salary']:

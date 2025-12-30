@@ -10,6 +10,7 @@ An interactive dashboard for comparing teacher salaries across states and distri
 - **Career Progression**: Visualize how salaries increase over a teacher's career
 - **Interactive Filters**: Select specific states or regions to focus your analysis
 - **Detailed Metrics**: Explore district-level data with sortable tables
+- **✨ Real Alabama Data**: Detailed salary information for 9 Alabama school districts with verified sources
 
 ## Screenshots
 
@@ -34,9 +35,17 @@ pip install -r requirements.txt
 
 ```bash
 python generate_sample_data.py
+python generate_alabama_data.py
 ```
 
-This creates `teacher_salary_data.csv` with realistic sample data for 30 states and 150 districts.
+This creates:
+- `teacher_salary_data.csv` - Sample data for 30 states and 150 districts
+- `alabama_teacher_salaries.csv` - Real Alabama district salary data (9 districts)
+
+**Or use the quick start script:**
+```bash
+./start.sh
+```
 
 ### 3. Run the Dashboard
 
@@ -52,14 +61,20 @@ Navigate to: **http://127.0.0.1:8050**
 
 ```
 school-pay-visualization/
-├── app.py                      # Main Dash application
-├── generate_sample_data.py     # Data generation script
-├── requirements.txt            # Python dependencies
-├── teacher_salary_data.csv     # Generated data (after running step 2)
-└── README.md                   # This file
+├── app.py                              # Main Dash application
+├── generate_sample_data.py             # National sample data generator
+├── generate_alabama_data.py            # Alabama district data generator
+├── start.sh                            # Quick start script
+├── requirements.txt                    # Python dependencies
+├── teacher_salary_data.csv             # Generated national sample data
+├── alabama_teacher_salaries.csv        # Generated Alabama district data
+├── alabama_teacher_salaries_detailed.csv # Detailed Alabama data with salary schedules
+└── README.md                           # This file
 ```
 
-## Data Source
+## Data Sources
+
+### General Sample Data
 
 The sample data is based on realistic teacher salary patterns across US states as of 2024. The data generator creates:
 
@@ -71,13 +86,42 @@ The sample data is based on realistic teacher salary patterns across US states a
 - **Student-Teacher Ratio**: Average students per teacher
 - **Annual Raise %**: Average yearly salary increase
 
-### Using Real Data
+### Alabama District Data (Real Data)
 
-To use actual NCES (National Center for Education Statistics) data:
+The dashboard includes **real salary data** for 9 Alabama school districts (2024-2025 school year):
+
+**Districts Included:**
+- Baldwin County Schools
+- Mobile County Public Schools
+- Saraland City Schools
+- Orange Beach City Schools
+- Gulf Shores City Schools
+- Birmingham City Schools
+- Montgomery Public Schools
+- Hoover City Schools
+- Huntsville City Schools
+
+**Data Sources:**
+- Official district salary schedules from school board websites
+- Alabama Department of Education FY 2024-2025 State Minimum Salary Schedule
+- Indeed, Glassdoor, and Salary.com aggregated salary data
+- We Teach Alabama resources
+
+**Salary Ranges:**
+- Starting salaries: $45,000 - $49,500
+- Average salaries: $47,543 - $56,583
+- Top salaries: $65,000 - $84,716
+
+Select "Alabama" in the state filter to view detailed comparisons. The data table includes source attribution for each district.
+
+### Using Additional Real Data
+
+To add more states with real NCES (National Center for Education Statistics) data:
 
 1. Visit: https://nces.ed.gov/ccd/tcssurv.asp
 2. Download the Teacher Compensation Survey data files
-3. Modify `app.py` to load your CSV files instead of the sample data
+3. Create a similar data generation script like `generate_alabama_data.py`
+4. Update `app.py` to load your additional CSV files
 
 ## Technologies Used
 
